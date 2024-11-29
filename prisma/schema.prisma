@@ -6,3 +6,24 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
+
+// 租户表
+model sys_tenant {
+  id                   BigInt   @id @default(autoincrement()) // 主键id
+  tenant_id            String   @unique // 租户编号
+  tenant_contact_name  String? // 联系人
+  tenant_contact_phone String? // 联系电话
+  tenant_name          String? // 租户名称
+  tenant_area          String? // 租户地区
+  tenant_address       String? // 租户地址
+  longitude            Int? // 经度
+  latitude             Int? // 纬度
+  area_code            String? // 区号
+  status               String?  @default("0") @db.Char(1) // 租户状态(0:正常，1:停用)
+  del_flag             String   @default("0") @db.Char(1) //删除标志（0代表存在 1代表删除）',
+  create_by            String   @default("") @db.VarChar(64) // 创建人
+  create_time          DateTime @default(now()) // 创建时间
+  update_by            String   @default("") @db.VarChar(64) // 更新人
+  update_time          DateTime @updatedAt // 更新时间
+  remark              String? // 备注
+}
