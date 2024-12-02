@@ -34,15 +34,220 @@ model sys_tenant {
 
 // 租户套餐表
 model sys_tenant_package {
-  package_id          BigInt  @id @default(autoincrement()) // 主键id
-  package_name        String  @unique
+  package_id          BigInt   @id @default(autoincrement()) // 主键id
+  package_name        String   @unique
   menu_ids            String // 关联菜单Id
-  menu_check_strictly Int     @default(1) @db.TinyInt() // 是否菜单树选择项是否关联显示
-  status               String?   @default("0") @db.Char(1) // 租户状态(0:正常，1:停用)
-  del_flag             String    @default("0") @db.Char(1) //删除标志（0代表存在 1代表删除）',
-  create_by            String    @default("") @db.VarChar(64) // 创建人
-  create_time          DateTime  @default(now()) // 创建时间
-  update_by            String    @default("") @db.VarChar(64) // 更新人
-  update_time          DateTime  @updatedAt // 更新时间
-  remark               String? // 备注
+  menu_check_strictly Int      @default(1) @db.TinyInt() // 是否菜单树选择项是否关联显示
+  status              String?  @default("0") @db.Char(1) // 租户状态(0:正常，1:停用)
+  del_flag            String   @default("0") @db.Char(1) //删除标志（0代表存在 1代表删除）',
+  create_by           String   @default("") @db.VarChar(64) // 创建人
+  create_time         DateTime @default(now()) // 创建时间
+  update_by           String   @default("") @db.VarChar(64) // 更新人
+  update_time         DateTime @updatedAt // 更新时间
+  remark              String? // 备注
+}
+
+// 用户表
+model sys_user {
+  user_id     BigInt    @id @default(autoincrement()) // 用户id
+  tenant_id   String? // 租户id
+  dept_id     BigInt? // 部门id
+  user_name   String    @unique // 用户账号
+  nick_name   String // 用户昵称
+  user_type   String?   @default("sys_user") // 用户类型（sys_user系统用户）
+  email       String? // 用户邮箱
+  phonenumber String? // 手机号码
+  password    String?   @db.VarChar(100) // 密码
+  sex         String?   @db.Char(1) // 用户性别（0男 1女 2未知）
+  avatar      String? // 头像
+  status      String?   @default("0") @db.Char(1) // 帐号状态（0正常 1停用）
+  del_flag    String?   @default("0") @db.Char(1) //删除标志（0代表存在 1代表删除）
+  login_ip    String? // 最后登录IP
+  login_date  DateTime? // 最后登录时间
+  create_by   String    @default("") @db.VarChar(64) // 创建人
+  create_time DateTime  @default(now()) // 创建时间
+  update_by   String    @default("") @db.VarChar(64) // 更新人
+  update_time DateTime  @updatedAt // 更新时间
+  remark      String? // 备注
+}
+
+// 角色表
+model sys_role {
+  role_id             BigInt   @id @default(autoincrement()) // 角色id
+  tenant_id           String? // 租户id
+  role_name           String   @unique // 角色名称
+  role_key            String   @unique // 角色权限字符串
+  role_sort           Int      @default(0) // 显示顺序
+  data_scope          String?  @default("1") @db.Char(1) // 数据范围（1：全部数据权限 2：自定数据权限 3：本部门数据权限 4：本部门及以下数据权限）
+  status              String?  @default("0") @db.Char(1) // 角色状态（0正常 1停用）
+  menu_check_strictly Int?     @default(1) @db.TinyInt() // 是否菜单树选择项是否关联显示
+  dept_check_strictly Int?     @default(1) @db.TinyInt() // 是否部门树选择项是否关联显示
+  del_flag            String?  @default("0") @db.Char(1) //删除标志（0代表存在 1代表删除）',
+  create_by           String   @default("") @db.VarChar(64) // 创建人
+  create_time         DateTime @default(now()) // 创建时间
+  update_by           String   @default("") @db.VarChar(64) // 更新人
+  update_time         DateTime @updatedAt // 更新时间
+  remark              String? // 备注
+}
+
+// 用户和角色关联表
+model sys_user_role {
+  id      BigInt @id @default(autoincrement()) // 主键id
+  user_id BigInt // 用户id
+  role_id BigInt // 角色id
+}
+
+// 角色和部门关联表
+model sys_role_dept {
+  id      BigInt @id @default(autoincrement()) // 主键id
+  role_id BigInt // 角色id
+  dept_id BigInt // 部门id
+}
+
+//角色和菜单表
+model sys_role_menu {
+  id      BigInt @id @default(autoincrement()) // 主键id
+  role_id BigInt // 角色id
+  menu_id BigInt // 菜单id
+}
+
+// 菜单表
+model sys_menu {
+  menu_id     BigInt   @id @default(autoincrement()) // 菜单id
+  menu_name   String   @unique // 菜单名称
+  parent_id   BigInt?  @default(0) // 父菜单id
+  order_num   Int?     @default(0) // 显示顺序
+  path        String?  @default("") @db.VarChar(200) // 路由地址
+  component   String?  @default("") @db.VarChar(255) // 组件路径
+  query_param String?  @default("") @db.VarChar(255) // 路由参数
+  is_frame    String?  @default("1") @db.Char(1) // 是否外链（0是 1否）
+  is_cache    String?  @default("0") @db.Char(1) // 是否缓存（0缓存 1不缓存）
+  menu_type   String?  @default("M") @db.Char(1) // 菜单类型（M目录 C菜单 F按钮）
+  visible     String?  @default("0") @db.Char(1) // 菜单状态（0显示 1隐藏）
+  icon        String?  @default("") @db.VarChar(100) // 菜单图标
+  permission  String?  @default("") @db.VarChar(100) // 权限标识
+  status      String?  @default("0") @db.Char(1) // 部门状态（0正常 1停用）
+  del_flag    String?  @default("0") @db.Char(1) //删除标志（0代表存在 1代表删除）',
+  create_by   String   @default("") @db.VarChar(64) // 创建人
+  create_dept String? // 创建部门
+  create_time DateTime @default(now()) // 创建时间
+  update_by   String   @default("") @db.VarChar(64) // 更新人
+  update_time DateTime @updatedAt // 更新时间
+  remark      String? // 备注
+}
+
+// 部门表
+model sys_dept {
+  dept_id       BigInt   @id @default(autoincrement()) // 部门id
+  tenant_id     String? // 租户id
+  parent_id     BigInt?  @default(0) // 父部门id
+  ancestors     String?  @default("") @db.VarChar(50) // 祖级列表
+  dept_name     String?  @default("") @db.VarChar(30) // 部门名称
+  dept_category String?  @default("0") @db.VarChar(100) // 部门类别编码
+  order_num     Int?     @default(0) // 显示顺序
+  leader        String?  @default("") @db.VarChar(20) // 负责人
+  phone         String?  @default("") @db.VarChar(11) // 联系电话
+  email         String?  @default("") @db.VarChar(50) // 邮箱
+  status        String?  @default("0") @db.Char(1) // 部门状态（0正常 1停用）
+  del_flag      String?  @default("0") @db.Char(1) //删除标志（0代表存在 1代表删除）',
+  create_by     String   @default("") @db.VarChar(64) // 创建人
+  create_dept   String? // 创建部门
+  create_time   DateTime @default(now()) // 创建时间
+  update_by     String   @default("") @db.VarChar(64) // 更新人
+  update_time   DateTime @updatedAt // 更新时间
+  remark        String? // 备注
+}
+
+// 岗位表
+model sys_post {
+  post_id       BigInt   @id @default(autoincrement()) // 岗位id
+  tenant_id     String? // 租户id
+  post_code     String   @unique // 岗位编码
+  post_category String?  @db.VarChar(100) // 岗位类别编码
+  post_name     String   @unique // 岗位名称
+  post_sort     Int      @default(0) // 显示顺序
+  status        String?  @default("0") @db.Char(1) // 岗位状态（0正常 1停用）
+  del_flag      String?  @default("0") @db.Char(1) //删除标志（0代表存在 1代表删除）',
+  create_by     String   @default("") @db.VarChar(64) // 创建人
+  create_time   DateTime @default(now()) // 创建时间
+  update_by     String   @default("") @db.VarChar(64) // 更新人
+  update_time   DateTime @updatedAt // 更新时间
+  remark        String? // 备注
+}
+
+// 用户和岗位关联表
+model sys_user_post {
+  id      BigInt @id @default(autoincrement()) // 主键id
+  user_id BigInt // 用户id
+  post_id BigInt // 岗位id
+}
+
+// oss
+model sys_oss {
+  oss_id        BigInt   @id @default(autoincrement()) // 主键id
+  tenant_id     String? // 租户id
+  file_name     String?  @default("") @db.VarChar(255) // 文件名
+  original_name String?  @default("") @db.VarChar(255)
+  file_suffix   String?  @default("") @db.VarChar(10) // 后缀
+  file_url      String?  @default("") @db.VarChar(255) // 路径
+  create_by     String?  @default("") @db.VarChar(64) // 创建人
+  create_dept   String? // 创建部门
+  create_time   DateTime @default(now()) // 创建时间
+  update_by     String?  @default("") @db.VarChar(64) // 更新人
+  update_time   DateTime @updatedAt // 更新时间
+  remark        String? // 备注
+}
+
+// oss配置表
+model sys_oss_config {
+  config_id     BigInt   @id @default(autoincrement()) // 主键id
+  tenant_id     String? // 租户id
+  config_key    String?  @unique // 配置key
+  access_key    String?  @default("") @db.VarChar(255) // accessKey
+  secret_key    String?  @default("") @db.VarChar(255) // secretKey
+  bucket_name   String?  @default("") @db.VarChar(255) // 桶名称
+  endpoint      String?  @default("") @db.VarChar(255) // 域名
+  prefix        String?  @default("") @db.VarChar(255) // 前缀
+  region        String?  @default("") @db.VarChar(255) // 地域
+  access_policy String?  @default("") @db.Char(1) // 访问策略 0公开 1私有 2自定义
+  status        String?  @default("0") @db.Char(1) // 是否默认（0默认 1不默认）
+  create_by     String?  @default("") @db.VarChar(64) // 创建人
+  create_dept   String? // 创建部门
+  create_time   DateTime @default(now()) // 创建时间
+  update_by     String?  @default("") @db.VarChar(64) // 更新人
+  update_time   DateTime @updatedAt // 更新时间
+  remark        String? // 备注
+}
+
+// 字典
+model sys_dict_data {
+  dict_code   BigInt   @id @default(autoincrement()) // 主键id
+  tenant_id   String? // 租户id
+  dict_type   String?  @unique // 字典类型
+  dict_label  String?  @default("") @db.VarChar(100) // 字典标签
+  dict_value  String?  @default("") @db.VarChar(100) // 字典键值
+  dict_sort   Int?     @default(0) // 排序
+  list_class  String?  @default("default") @db.VarChar(100) // 表格回显样式
+  css_class   String?  @default("") @db.VarChar(100) // css类名
+  is_default  String?  @default("N") @db.Char(1) // 是否默认（Y是 N否）
+  create_by   String?  @default("") @db.VarChar(64) // 创建人
+  create_dept String? // 创建部门
+  create_time DateTime @default(now()) // 创建时间
+  update_by   String?  @default("") @db.VarChar(64) // 更新人
+  update_time DateTime @updatedAt // 更新时间
+  remark      String? // 备注
+}
+
+// 字典类型
+model sys_dict_type {
+  dict_id     BigInt   @id @default(autoincrement()) // 主键id
+  tenant_id   String? // 租户id
+  dict_name   String?  @unique // 字典名称
+  dict_type   String?  @unique // 字典类型
+  create_by   String?  @default("") @db.VarChar(64) // 创建人
+  create_dept String? // 创建部门
+  create_time DateTime @default(now()) // 创建时间
+  update_by   String?  @default("") @db.VarChar(64) // 更新人
+  update_time DateTime @updatedAt // 更新时间
+  remark      String? // 备注
 }
