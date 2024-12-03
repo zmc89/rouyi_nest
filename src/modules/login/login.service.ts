@@ -1,17 +1,19 @@
-import { Injectable } from '@nestjs/common';
+import { Inject,Injectable } from '@nestjs/common';
 import * as svgCaptcha from 'svg-captcha';
-import { SharedService } from '../../shared/shared.service'
-import { LoginResDto, CaptChaResDto } from './dto/loginRes';
+import { CaptChaResDto } from './dto/loginRes';
+import { SharedService } from '../../common/shared/shared.service'
+
 
 
 
 @Injectable()
 export class LoginService {
+
   constructor(
-    private readonly sharedService: SharedService
+    private readonly sharedService: SharedService,
   ) {}
 
-  async captchaImage(){
+  async captchaImage():Promise<CaptChaResDto>{
       const { data,text } = svgCaptcha.createMathExpr({
          noise: 3,
          color: true,
@@ -23,5 +25,6 @@ export class LoginService {
       img: svgBuffer,
       uuid: this.sharedService.generateUUID(),
     };
+    return result
   }
 }
