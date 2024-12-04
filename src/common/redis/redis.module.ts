@@ -15,8 +15,7 @@ import { ConfigService } from '@nestjs/config';
             socket:{
               host: configService.get('REDIS_HOST'),
               port: configService.get('REDIS_PORT')
-            },
-          database: configService.get('REDIS_DB'),
+            }
         })
         await client.connect()
         return client

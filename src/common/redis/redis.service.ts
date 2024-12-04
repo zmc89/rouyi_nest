@@ -3,7 +3,7 @@ import { RedisClientType } from 'redis';
 
 @Injectable()
 export class RedisService {
-  @Inject('NEST_REDIS')
+  @Inject('REDIS_CLIENT')
   private client: RedisClientType
 
   getClient(): RedisClientType {
